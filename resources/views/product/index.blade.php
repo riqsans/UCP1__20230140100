@@ -6,37 +6,35 @@
                     
                     {{-- Header --}}
                     <div class="flex items-center justify-between mb-6">
-                        {{-- Header --}}
-<div class="flex items-center justify-between mb-6">
-    <div>
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 tracking-tight">Product List</h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage your product inventory</p>
-    </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 tracking-tight">Product List</h2>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage your product inventory</p>
+                        </div>
 
-    <div class="flex items-center gap-2">
-        {{-- LANGKAH 2 & 3 (KELAS B): Tombol Export hanya untuk Admin --}}
-        @can('export-product')
-            <a href="#" {{-- Ganti # dengan route export kamu nanti --}}
-                class="inline-flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition duration-150 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Export Product
-            </a>
-        @endcan
+                        <div class="flex items-center gap-2">
+                            {{-- Tombol Export hanya untuk Admin --}}
+                            @can('export-product')
+                                <a href="{{ route('product.export') }}"
+                                    style="background-color: #10b981 !important; color: white !important; display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem; text-decoration: none; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 1rem; height: 1rem;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    Export Product
+                                </a>
+                            @endcan
 
-        {{-- Tombol Add Product --}}
-        @can('manage-product')
-            <a href="{{ route('product.create') }}"
-                class="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition duration-150 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Add Product
-            </a>
-        @endcan
-    </div>
-</div>
+                            {{-- Tombol Add Product --}}
+                            @can('manage-product')
+                                <a href="{{ route('product.create') }}"
+                                    style="background-color: #4f46e5 !important; color: white !important; display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 700; border-radius: 0.5rem; text-decoration: none; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 1rem; height: 1rem;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    Add Product
+                                </a>
+                            @endcan
+                        </div>
+                    </div>
                     
                     {{-- Flash Message --}}
                     @if (session('success'))
