@@ -5,61 +5,123 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\QueryException;
+
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ProductController extends Controller
 {
+    use AuthorizesRequests;
+
+    /**
+     * Menampilkan daftar semua produk.
+     */
     public function index()
     {
-        $products = Product::all();
-
+        $products = Product::paginate(10);
         return view('product.index', compact('products'));
     }
 
-    public function store(Request $request)
+    /**
+     * Menyimpan produk baru ke database.
+     */
+    public function store(StoreProductRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'quantity' => 'required|integer',
-            'price' => 'required|numeric',
-            'user_id' => 'required|exists:users,id',
-        ]);
+        try {
+            Product::create($request->validated());
 
-        $product = Product::create($validated);
+            return redirect()
+                ->route('product.index')
+                ->with('success', 'Product created successfully.');
 
-        return redirect()->route('product.index')->with('success', 'Product created successfully.');
+        } catch (QueryException $e) {
+            Log::error('Product store database error', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Database error while creating product.');
+
+        } catch (\Throwable $e) {
+            Log::error('Product store unexpected error', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Unexpected error occurred.');
+        }
     }
 
+    /**
+     * Menampilkan form untuk membuat produk baru.
+     */
     public function create()
     {
         $users = User::orderBy('name')->get();
-
         return view('product.create', compact('users'));
     }
 
+    /**
+     * Menampilkan detail produk tertentu.
+     */
     public function show($id)
     {
         $product = Product::findOrFail($id);
-
         return view('product.view', compact('product'));
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Memperbarui data produk di database.
+     */
+    public function update(UpdateProductRequest $request, $id)
     {
         $product = Product::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'quantity' => 'sometimes|integer',
-            'price' => 'sometimes|numeric',
-            'user_id' => 'sometimes|exists:users,id',
-        ]);
+        // Memeriksa izin sebelum melakukan update data
+        Gate::authorize('update', $product);
 
-        $product->update($validated);
+        try {
+            $product->update($request->validated());
 
-        return redirect()->route('product.index')->with('success', 'Product updated successfully.');
+            return redirect()
+                ->route('product.index')
+                ->with('success', 'Product updated successfully.');
+
+        } catch (QueryException $e) {
+            Log::error('Product update database error', [
+                'id' => $id,
+                'message' => $e->getMessage(),
+            ]);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Database error while updating product.');
+
+        } catch (\Throwable $e) {
+            Log::error('Product update unexpected error', [
+                'id' => $id,
+                'message' => $e->getMessage(),
+            ]);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Unexpected error occurred.');
+        }
     }
 
+    /**
+     * Menampilkan form edit produk.
+     */
     public function edit(Product $product)
     {
         Gate::authorize('update', $product);
@@ -68,6 +130,9 @@ class ProductController extends Controller
         return view('product.edit', compact('product', 'users'));
     }
 
+    /**
+     * Menghapus produk dari database.
+     */
     public function delete($id)
     {
         $product = Product::findOrFail($id);
@@ -76,8 +141,13 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('product.index')->with('success', 'Product dihapus');
     }
+
+    /**
+     * Fitur tambahan untuk export data.
+     */
     public function export()
     {
-    return "Halaman Export Data (Hanya Admin yang bisa lihat ini)";
+        Gate::authorize('access-admin');
+        return "Halaman Export Data (Hanya Admin yang bisa lihat ini)";
     }
 }
