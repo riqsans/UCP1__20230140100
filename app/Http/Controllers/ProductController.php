@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\User;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
@@ -66,7 +67,8 @@ class ProductController extends Controller
     public function create()
     {
         $users = User::orderBy('name')->get();
-        return view('product.create', compact('users'));
+        $categories = Category::orderBy('name')->get();
+        return view('product.create', compact('users', 'categories'));
     }
 
     /**
@@ -127,7 +129,8 @@ class ProductController extends Controller
         Gate::authorize('update', $product);
     
         $users = User::orderBy('name')->get();
-        return view('product.edit', compact('product', 'users'));
+        $categories = Category::orderBy('name')->get();
+        return view('product.edit', compact('product', 'users', 'categories'));
     }
 
     /**
